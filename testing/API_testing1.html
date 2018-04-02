@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang = "en" >
+<head>
+<meta charset = "utf-8" >
+<meta name = "viewport" content= "width=device-width, initial-scale=1" >
+<title>Search Market Testing 1</title>
+<style>
+
+	body { font: 12pt monospace; margin: 0 auto; max-width: 800px; }
+
+	a { color: crimson; text-decoration: none; }
+	a:hover, a:focus { background-color: yellow; color: #aaa; text-decoration: underline }
+
+</style>
+</head>
+<body>
+
+	<h3>
+		
+		<a href="" >TESTING NAKUL</a>
+	</h3>
+
+	<div id = "divContents" >Data will appear here automtically in a few seconds. Open the developer console to see more details.</div>
+
+<script>
+
+
+	const url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=TSLA&outputsize=full&apikey=ORQGL39N6GSBB146';
+
+	requestFile( url );
+
+
+	function requestFile( url ) {
+
+		const xhr = new XMLHttpRequest();
+		xhr.open( 'GET', url, true );
+		xhr.onerror = function( xhr ) { console.log( 'error:', xhr  ); };
+		xhr.onprogress = function( xhr ) { console.log( 'bytes loaded:', xhr.loaded  ); }; /// or something
+		xhr.onload = callback;
+		xhr.send( null );
+
+		function callback( xhr ) {
+
+			let response, json, lines;
+
+			response = xhr.target.response;
+			divContents.innerText = response;
+
+			json = JSON.parse( response );
+			//console.log(Number(json["Time Series (Daily)"]["2018-02-05"]["4. close"]));
+
+			values=[];
+			xaxis=[];
+			count=1;
+			for (x in json["Time Series (Daily)"]) { 
+    			values.push(Number(json["Time Series (Daily)"][x]["4. close"]));
+    			xaxis.push(count);
+    			count=count+1;
+
+			}
+			console.log(values.length);
+			//console.log(values[0]);
+
+			//console.log(json["Meta Data"]["2. Symbol"]);
+
+			console.log( 'json', json );
+
+		}
+
+	}
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang = "en" >
+<head>
+<meta charset = "utf-8" >
+<meta name = "viewport" content= "width=device-width, initial-scale=1" >
+<meta name = "description" content = "Basic Alpha Vantage script" >
+<meta name = "keywords" content = "Alpha Vantage,predIQtiv,JavaScript,GitHub" >
+<meta name = "date" content = "2018-01-14 ~ " >
+<title>Search Market Testing 2</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<form class="example" onsubmit="myFunction();return false">
+	<input type="text" id="myInput" name="search" placeholder="Search..">
+	<button type="submit"><i class="fa fa-search"></i></button>
+</form>
+<style>
+
+	form.example input[type=text] {
+ 		padding: 10px;
+  		font-size: 14px;
+  		border: 1px solid grey;
+  		float: left;
+  		width: 40%;
+  		background: #f1f1f1;	    
+	}
+
+	/* Style the submit button */
+	form.example button {
+		float: left;
+		width: 5%;
+		padding: 10px;
+		background: #2196F3;
+		color: white;
+		font-size: 14px;
+		border: 1px solid grey;
+		border-left: none; /* Prevent double borders */
+		cursor: pointer;
+	}
+
+	form.example button:hover {
+		background: #0b7dda;
+	}
+
+	form.example::after {
+  		content: "";
+  		clear: both;
+  		display: table;
+	}
+
+	#information{
+		position: relative;
+		left: 500px;
+		top: 200px;
+	}
+
+	#stockName{
+		font-family: verdana;
+		font-weight: lighter;
+	}
+	#currentPrice {
+		color:gray;
+		font-family: verdana;
+		font-weight: lighter;
+	}
+
+	#priceChange{
+		font-family: verdana;
+		font-weight: lighter;
+	}
+
+	#currentPriceTime{
+		color:gray;
+		font-family: verdana;
+		font-weight: lighter;
+	}
+
+	#loader {
+		display: none;
+  		position: absolute;
+  		left: 50%;
+  		top: 50%;
+  		z-index: 1;
+  		width: 150px;
+  		height: 150px;
+  		margin: -75px 0 0 -75px;
+  		border: 16px solid #f3f3f3;
+  		border-radius: 50%;
+  		border-top: 16px solid #3498db;
+  		width: 120px;
+  		height: 120px;
+  		-webkit-animation: spin 2s linear infinite;
+  		animation: spin 2s linear infinite;
+	}
+
+	@-webkit-keyframes spin {
+  		0% { -webkit-transform: rotate(0deg); }
+  		100% { -webkit-transform: rotate(360deg); }
+	}
+
+	@keyframes spin {
+  		0% { transform: rotate(0deg); }
+  		100% { transform: rotate(360deg); }
+	}	
+
+</style>
+<script src="plotly-latest.min.js"></script>
+</head>
+<body>
+	<div id="information">
+		<h1 id="stockName"></h1>
+		<h2 id="currentPrice"></h2>
+		<h3 id="priceChange"></h3>
+		<h4 id="currentPriceTime"></h4>
+	</div>
+
+	<div id="loader"></div>
+	<div id="myDiv"></div>
+	
+<script>
+// Thanks to http://www.alphavantage.co/
+
+/*
+
+Remember to upate the API key field with your key
+
+Get your key here: https://www.alphavantage.co/support/#api-key
+
+'Demo' API Key works only for exact copies of the demos in the documentation
+
+*/
+	function myFunction() {
+    	document.getElementById("loader").style.display = "block";
+    	mySearch();
+	}
+
+	function mySearch(){
+
+		var input, filter;
+    	input = document.getElementById('myInput');
+    	filter = input.value.toUpperCase();
+
+    	const url = 'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=' + filter + '&interval=1min&outputsize=compact&apikey=ORQGL39N6GSBB146';
+	
+		requestFile( url );
+
+		function requestFile( url ) {
+
+			const xhr = new XMLHttpRequest();
+			xhr.open( 'GET', url, true );
+			xhr.onerror = function( xhr ) { console.log( 'error:', xhr  ); };
+			xhr.onprogress = function( xhr ) { console.log( 'bytes loaded:', xhr.loaded  ); }; /// or something
+			xhr.onload = getAssetData;
+			xhr.send( null );
+
+			function getAssetData( xhr ) {
+
+				let response, json, lines;
+
+				response = xhr.target.response;
+				//divContents.innerText = response;
+
+				json = JSON.parse( response );
+				console.log( 'json', json );
+
+				//Remove loader and Print stock symbol
+				document.getElementById("loader").style.display = "none";
+				document.getElementById("stockName").innerHTML = json["Meta Data"]["2. Symbol"];
+
+				values=[];
+				xaxis=[];
+				//count=0;
+				//Store stock data into array
+				for (x in json["Time Series (1min)"]) { 
+	    			values.push(Number(json["Time Series (1min)"][x]["4. close"]));
+	    			xaxis.push(x);
+	    			//count=count+1;
+				}
+
+				console.log(values.length);
+
+				//Print current price with time 
+				var keys = Object.keys(json["Time Series (1min)"]);
+				var time = document.getElementById('currentPriceTime');
+				time.innerHTML = keys[0];
+				var price = document.getElementById('currentPrice');
+				price.innerHTML = json["Time Series (1min)"][keys[0]]["4. close"]+ " USD"; 
+
+				var change = Number(json["Time Series (1min)"][keys[0]]["4. close"]) - Number(json["Time Series (1min)"][keys[keys.length - 1]]["1. open"]);
+				change = change.toFixed(3);
+				var priceChange
+
+				if(change > 0){
+					priceChange = document.getElementById('priceChange');
+					priceChange.innerHTML = change.toString();
+					priceChange.style.color = "green"; 
+				}
+				else if(change < 0){ 
+					priceChange = document.getElementById('priceChange');
+					priceChange.innerHTML = change.toString(); 
+					priceChange.style.color = "red";
+				}
+
+				//Set trace parameters
+				var trace1 = {
+	  				type: "scatter",
+	  				mode: "lines",
+	  				name: 'Close',
+	  				x: xaxis,
+	  				y: values,
+	  				line: {color: '#17BECF'}
+				}
+
+				//Set graph data
+				var data = [trace1];
+
+				//Set graph layout: title
+				var layout = {
+					title: json["Meta Data"]["2. Symbol"]
+				}
+
+				//Set parameters of div element for graph display
+				x_pos = 500;
+				y_pos = 500;
+				var d = document.getElementById('myDiv');
+				d.style.outline = "thin solid #0000FF";
+				d.style.position = "absolute";
+				d.style.left = x_pos+'px';
+				d.style.top = y_pos+'px';
+
+				//Create plot at div element with specified data and layout
+				Plotly.newPlot(d,data,layout);
+
+			}
+		}
+	}
+
+
+</script>
+</body>
+</html>
