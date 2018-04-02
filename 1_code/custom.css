@@ -1,0 +1,20 @@
+body{
+    background: url('bg1.jpg') no-repeat;
+    background-size: cover;
+    font-family: Arial;
+    color: white;
+}
+
+ul.nav li.dropdown:hover > ul.dropdown-menu {
+    display: block;    
+}
+
+/* Bottom right text */
+.bottom-right {
+    position: absolute;
+    font-family: cursive;
+    font-style: italic;
+    font-size: 80px;
+    bottom: 8px;
+    right: 16px;
+}
