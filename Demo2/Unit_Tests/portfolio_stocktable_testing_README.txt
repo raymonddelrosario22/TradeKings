@@ -1,0 +1,1 @@
+For this part of the portfolio, we wanted to have the user. We do this from pulling data from our database for the user. The code can be tested by compiling the php file in XAMPP or something similar.

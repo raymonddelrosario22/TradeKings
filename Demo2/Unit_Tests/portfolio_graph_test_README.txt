@@ -1,0 +1,1 @@
+The following is what we used to have the user have a graph on their portfolio. The api data was taken by the site https://www.tradingview.com. As we coded around hwo they want users to use their data. In order for it to run the HTML program just open it and run it in any internet browser.
