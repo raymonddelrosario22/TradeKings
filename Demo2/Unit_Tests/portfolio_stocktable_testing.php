@@ -27,7 +27,7 @@ if ($db->connect_error) {
 
 
 //$email=$_SESSION['email'];
-$email='tnkp9733@gmail.com';
+$email='nkp9733@gmail.com';
 //$query = 'Select title from league where email=$email';
 
 ?>
